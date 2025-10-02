@@ -69,11 +69,42 @@ class ActuatorAdapterManager(object):
 
 	def _initEnvironmentalActuationTasks(self):
 		if not self.useEmulator:
-			# load the environmental tasks for simulated actuation
+			# Simulator path (default)
 			self.humidifierActuator = HumidifierActuatorSimTask()
-			
-			# create the HVAC actuator
-			self.hvacActuator = HvacActuatorSimTask()
+			self.hvacActuator       = HvacActuatorSimTask()
+			logging.info("Loaded simulated actuator tasks (HVAC, Humidifier).")
+		else:
+			try:
+				# Humidifier emulator
+				hueModule = import_module(
+					'programmingtheiot.cda.emulated.HumidifierEmulatorTask',
+					'HumidifierEmulatorTask'
+				)
+				hueClazz = getattr(hueModule, 'HumidifierEmulatorTask')
+				self.humidifierActuator = hueClazz()
+
+				# HVAC emulator
+				hveModule = import_module(
+					'programmingtheiot.cda.emulated.HvacEmulatorTask',
+					'HvacEmulatorTask'
+				)
+				hveClazz = getattr(hveModule, 'HvacEmulatorTask')
+				self.hvacActuator = hveClazz()
+
+				# LED display emulator
+				leModule = import_module(
+					'programmingtheiot.cda.emulated.LedDisplayEmulatorTask',
+					'LedDisplayEmulatorTask'
+				)
+				leClazz = getattr(leModule, 'LedDisplayEmulatorTask')
+				self.ledDisplayActuator = leClazz()
+
+				logging.info("Loaded SenseHAT emulator actuator tasks (HVAC, Humidifier, LED Display).")
+
+			except Exception as e:
+				logging.error("Failed to load actuator emulator tasks: %s", e)
+				raise
+
 
 	def sendActuatorCommand(self, data: ActuatorData) -> ActuatorData:
 		if data and not data.isResponseFlagEnabled():
