@@ -55,7 +55,7 @@ TRIGGER_HVAC_TEMP_CEILING_KEY = 'triggerHvacTempCeiling'
 #
 [ConstrainedDevice]
 deviceLocationID = constraineddevice001
-enableEmulator   = False
+enableEmulator   = True
 enableSenseHAT   = False
 enableMqttClient = True
 enableCoapServer = False
