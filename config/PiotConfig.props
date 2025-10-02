@@ -32,6 +32,23 @@ port           = 5683
 securePort     = 5684
 enableAuth     = False
 enableCrypt    = False
+enableSimulator = True
+
+
+enableSystemPerformance = True
+enableSensing = True
+
+# NOTE: Choose the values most appropriate for your implementation
+handleTempChangeOnDevice = True
+triggerHvacTempFloor     = 18.0
+triggerHvacTempCeiling   = 20.0
+
+ENABLE_SYSTEM_PERF_KEY = 'enableSystemPerformance'
+ENABLE_SENSING_KEY = 'enableSensing'
+
+HANDLE_TEMP_CHANGE_ON_DEVICE_KEY = 'handleTempChangeOnDevice'
+TRIGGER_HVAC_TEMP_FLOOR_KEY = 'triggerHvacTempFloor'
+TRIGGER_HVAC_TEMP_CEILING_KEY = 'triggerHvacTempCeiling'
 
 #
 # CDA specific configuration information

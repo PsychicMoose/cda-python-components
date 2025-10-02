@@ -26,9 +26,19 @@ from programmingtheiot.data.SystemPerformanceData import SystemPerformanceData
 
 class SystemPerformanceManager(object):
 	"""
-	Shell representation of class for student implementation.
-	
+	Manager for collecting and publishing system performance data.
+
+	This class periodically gathers key system metrics such as CPU utilization
+	and memory utilization, wraps them in a SystemPerformanceData object, and
+	notifies any registered data message listeners.
+
+	Responsibilities:
+	- Monitor CPU and memory usage on the constrained device.
+	- Package metrics into SystemPerformanceData objects.
+	- Dispatch updates to DeviceDataManager or other registered listeners.
+	- Support configurable polling intervals and lifecycle (start/stop).
 	"""
+
 
 	def __init__(self):
 		configUtil = ConfigUtil()

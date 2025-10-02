@@ -18,8 +18,15 @@ from programmingtheiot.cda.system.BaseSystemUtilTask import BaseSystemUtilTask
 
 class SystemCpuUtilTask(BaseSystemUtilTask):
 	"""
-	Shell representation of class for student implementation.
-	
+	Background task for monitoring system CPU utilization, inherited from BaseSystemUtilTask.
+
+	This class encapsulates logic to sample the device’s CPU usage,
+	typically via psutil or OS-specific APIs, and return it as a percentage.
+
+	Responsibilities:
+	- Query CPU usage from the operating system.
+	- Normalize results into a 0–100% float value.
+	- Provide data to SystemPerformanceManager for reporting.
 	"""
 
 	def __init__(self):

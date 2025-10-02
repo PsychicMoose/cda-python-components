@@ -22,14 +22,30 @@ from programmingtheiot.common.ConfigUtil import ConfigUtil
 
 from programmingtheiot.cda.system.SystemPerformanceManager import SystemPerformanceManager
 
+from programmingtheiot.cda.app.DeviceDataManager import DeviceDataManager
+
 
 logging.basicConfig(format = '%(asctime)s:%(name)s:%(levelname)s:%(message)s', level = logging.DEBUG)
 
 class ConstrainedDeviceApp():
 	"""
-	Definition of the ConstrainedDeviceApp class.
-	
+	Main entry point for the Constrained Device Application (CDA).
+
+	This class represents the outer orchestration layer for a constrained IoT device.
+	It coordinates startup, shutdown, and lifecycle management of the core managers,
+	including DeviceDataManager and, optionally, SystemPerformanceManager.
+
+	Responsibilities:
+	- Initialize and configure system managers (via ConfigUtil).
+	- Start and stop DeviceDataManager and its subsystems.
+	- Manage system lifecycle (startApp, stopApp, isAppStarted).
+	- Handle run loop logic for finite (e.g., 65s) or infinite execution modes.
+	- Provide logging, exception handling, and clean shutdown behavior.
+
+	This class is typically invoked from the command line entry point (main()), but can
+	also be imported and run programmatically for testing or embedding in larger systems.
 	"""
+
 	
 	def __init__(self):
 		"""
@@ -42,8 +58,9 @@ class ConstrainedDeviceApp():
 
 		self.sysPerfMgr = SystemPerformanceManager()
 
-		# TODO: implementation here
-		
+		self.dataMgr = DeviceDataManager()
+
+
 		self.isStarted = False
 
 	def isAppStarted(self) -> bool:
@@ -60,9 +77,14 @@ class ConstrainedDeviceApp():
 		
 		self.sysPerfMgr.startManager()
 
-		# TODO: implementation here
-		
+		self.dataMgr.startManager()
+
+		self.isStarted = True
+
+
 		logging.info("CDA started.")
+
+
 
 	def stopApp(self, code: int):
 		"""
@@ -73,7 +95,7 @@ class ConstrainedDeviceApp():
 		
 		self.sysPerfMgr.stopManager()
 
-		# TODO: implementation here
+		self.dataMgr.stopManager()
 		
 		logging.info("CDA stopped with exit code %s.", str(code))
 		
