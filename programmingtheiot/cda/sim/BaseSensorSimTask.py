@@ -16,36 +16,71 @@ import random
 import programmingtheiot.common.ConfigConst as ConfigConst
 
 from programmingtheiot.data.SensorData import SensorData
+from programmingtheiot.cda.sim.SensorDataGenerator import SensorDataSet
 
 class BaseSensorSimTask():
 	"""
-	Shell representation of class for student implementation.
-	
+	Abstract base class for simulating a sensor task.
+	It can generate SensorData either randomly within a specified range
+	or from a predefined dataset (SensorDataSet).
+	Subclasses should implement getLatestTelemetry to return
+	either the current SensorData instance or a copy.
+
+	Attributes:
+	- name: The name of the sensor.
+	- typeID: The type identifier for the sensor.
+	- dataSet: An optional SensorDataSet for predefined data.
+	- minVal: Minimum value for random data generation.
+	- maxVal: Maximum value for random data generation.
+	- latestSensorData: The most recently generated SensorData instance.
+	- dataSetIndex: Index to track the current position in the dataset.
+	- useRandomizer: Flag to indicate if random data generation is used.	
+
 	"""
 
-	DEFAULT_MIN_VAL = 0.0
-	DEFAULT_MAX_VAL = 1000.0
+
+	DEFAULT_MIN_VAL = ConfigConst.DEFAULT_VAL
+	DEFAULT_MAX_VAL = 100.0
 	
-	def __init__(self, name = ConfigConst.NOT_SET, typeID: int = ConfigConst.DEFAULT_SENSOR_TYPE, dataSet = None, minVal: float = DEFAULT_MIN_VAL, maxVal: float = DEFAULT_MAX_VAL):
-		pass
+	def __init__(self, name: str = ConfigConst.NOT_SET, typeID: int = ConfigConst.DEFAULT_SENSOR_TYPE, dataSet: SensorDataSet = None, minVal: float = DEFAULT_MIN_VAL, maxVal: float = DEFAULT_MAX_VAL):
+		self.dataSet = dataSet
+		self.name = name
+		self.typeID = typeID
+		self.dataSetIndex = 0
+		self.useRandomizer = False
+		
+		self.latestSensorData = None
+		
+		if not self.dataSet:
+			self.useRandomizer = True
+			self.minVal = minVal
+			self.maxVal = maxVal
 	
 	def generateTelemetry(self) -> SensorData:
-		"""
-		Implement basic logging and SensorData creation. Sensor-specific functionality
-		should be implemented by sub-class.
+		sensorData = SensorData(typeID = self.getTypeID(), name = self.getName())
+		sensorVal = ConfigConst.DEFAULT_VAL
 		
-		A local reference to SensorData can be contained in this base class.
-		"""
-		pass
+		if self.useRandomizer:
+			sensorVal = random.uniform(self.minVal, self.maxVal)
+		else:
+			sensorVal = self.dataSet.getDataEntry(index = self.dataSetIndex)
+			self.dataSetIndex = self.dataSetIndex + 1
+			
+			if self.dataSetIndex >= self.dataSet.getDataEntryCount() - 1:
+				self.dataSetIndex = 0
+				
+		sensorData.setValue(sensorVal)
+		
+		self.latestSensorData = sensorData
+		
+		return self.latestSensorData
 	
 	def getTelemetryValue(self) -> float:
-		"""
-		If a local reference to SensorData is not None, simply return its current value.
-		If SensorData hasn't yet been created, call self.generateTelemetry(), then return
-		its current value.
-		"""
-		pass
-	
+		if not self.latestSensorData:
+			self.generateTelemetry()
+		
+		return self.latestSensorData.getValue()
+		
 	def getLatestTelemetry(self) -> SensorData:
 		"""
 		This can return the current SensorData instance or a copy.
@@ -53,8 +88,7 @@ class BaseSensorSimTask():
 		pass
 	
 	def getName(self) -> str:
-		pass
+		return self.name
 	
 	def getTypeID(self) -> int:
-		pass
-	
+		return self.typeID

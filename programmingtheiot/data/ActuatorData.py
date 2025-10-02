@@ -16,38 +16,59 @@ from programmingtheiot.data.BaseIotData import BaseIotData
 
 class ActuatorData(BaseIotData):
 	"""
-	Shell representation of class for student implementation.
-	
+	Data model for representing actuator-related information.
+
+	This class extends BaseIotData to include:
+	- command: An integer indicating the desired actuator command.
+	- value: A float representing the actuator's target value.
+	- stateData: A string for descriptive actuator state information.
+	- isResponse: A flag to indicate if this object represents a response.
+
+	Intended for use in sending commands to actuators, 
+	receiving actuator responses, and tracking their state.
+
 	"""
 
 	def __init__(self, typeID: int = ConfigConst.DEFAULT_ACTUATOR_TYPE, name = ConfigConst.NOT_SET, d = None):
 		super(ActuatorData, self).__init__(name = name, typeID = typeID, d = d)
-		pass
-	
+		
+		self.value = ConfigConst.DEFAULT_VAL
+		self.command = ConfigConst.DEFAULT_COMMAND
+		self.stateData = ""
+		self.isResponse = False
+
 	def getCommand(self) -> int:
-		pass
-	
+		return self.command
+
 	def getStateData(self) -> str:
-		pass
-	
+		return self.stateData
+
 	def getValue(self) -> float:
-		pass
-	
+		return self.value
+
 	def isResponseFlagEnabled(self) -> bool:
-		return False
-	
+		return self.isResponse
+
 	def setCommand(self, command: int):
-		pass
-	
+		self.command = command
+		self.updateTimeStamp()
+
 	def setAsResponse(self):
-		pass
+		self.isResponse = True
+		self.updateTimeStamp()
 		
 	def setStateData(self, stateData: str):
-		pass
-	
+		if stateData:
+			self.stateData = stateData
+			self.updateTimeStamp()
+
 	def setValue(self, val: float):
-		pass
+		self.value = val
+		self.updateTimeStamp()
 		
 	def _handleUpdateData(self, data):
-		pass
-		
+		if data and isinstance(data, ActuatorData):
+			self.command = data.getCommand()
+			self.stateData = data.getStateData()
+			self.value = data.getValue()
+			self.isResponse = data.isResponseFlagEnabled()

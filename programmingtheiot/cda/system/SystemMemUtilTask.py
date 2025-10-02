@@ -18,9 +18,17 @@ from programmingtheiot.cda.system.BaseSystemUtilTask import BaseSystemUtilTask
 
 class SystemMemUtilTask(BaseSystemUtilTask):
 	"""
-	Shell representation of class for student implementation.
-	
+	Background task for monitoring system memory utilization, inherited from BaseSystemUtilTask.
+
+	This class encapsulates logic to sample the device’s memory usage,
+	typically via psutil or OS-specific APIs, and return it as a percentage.
+
+	Responsibilities:
+	- Query memory usage from the operating system.
+	- Normalize results into a 0–100% float value.
+	- Provide data to SystemPerformanceManager for reporting.
 	"""
+
 
 	def __init__(self):
 		super(SystemMemUtilTask, self).__init__(name = ConfigConst.MEM_UTIL_NAME, typeID = ConfigConst.MEM_UTIL_TYPE)

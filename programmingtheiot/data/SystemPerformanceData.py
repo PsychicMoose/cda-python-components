@@ -16,32 +16,40 @@ from programmingtheiot.data.BaseIotData import BaseIotData
 
 class SystemPerformanceData(BaseIotData):
 	"""
-	Shell representation of class for student implementation.
-	
+		Data model for capturing system performance metrics.
+
+		This class extends BaseIotData to include:
+		- cpuUtil: A float representing CPU utilization percentage.
+		- memUtil: A float representing memory utilization percentage.
+
+		It provides methods to get and set these metrics,
+		updating the timestamp automatically, and to merge or update
+		this object from another SystemPerformanceData instance
+		(via _handleUpdateData, useful for future system monitoring).
 	"""
 	DEFAULT_VAL = 0.0
 	
 	def __init__(self, d = None):
 		super(SystemPerformanceData, self).__init__(name = ConfigConst.SYSTEM_PERF_MSG, typeID = ConfigConst.SYSTEM_PERF_TYPE, d = d)
-		pass
-	
+		
+		self.cpuUtil = ConfigConst.DEFAULT_VAL
+		self.memUtil = ConfigConst.DEFAULT_VAL
+		
 	def getCpuUtilization(self):
-		pass
-	
-	def getDiskUtilization(self):
-		pass
-	
+		return self.cpuUtil
+		
 	def getMemoryUtilization(self):
-		pass
-	
+		return self.memUtil
+		
 	def setCpuUtilization(self, cpuUtil):
-		pass
-	
-	def setDiskUtilization(self, diskUtil):
-		pass
-	
+		self.cpuUtil = cpuUtil
+		self.updateTimeStamp()
+		
 	def setMemoryUtilization(self, memUtil):
-		pass
-	
+		self.memUtil = memUtil
+		self.updateTimeStamp()
+		
 	def _handleUpdateData(self, data):
-		pass
+		if data and isinstance(data, SystemPerformanceData):
+			self.cpuUtil = data.getCpuUtilization()
+			self.memUtil = data.getMemoryUtilization()
