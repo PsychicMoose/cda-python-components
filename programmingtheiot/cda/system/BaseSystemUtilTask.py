@@ -9,6 +9,7 @@
 # provided within in order to meet the needs of your specific
 # Programming the Internet of Things project.
 # 
+import logging
 
 import programmingtheiot.common.ConfigConst as ConfigConst
 
