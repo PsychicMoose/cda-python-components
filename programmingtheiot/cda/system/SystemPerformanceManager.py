@@ -42,7 +42,11 @@ class SystemPerformanceManager(object):
 
 	def __init__(self):
 		configUtil = ConfigUtil()
-		
+	    
+		self.logger = logging.getLogger(__name__)
+
+		self.logger.debug('CPU utilization is %s percent, and memory utilization is %s percent.', str(cpuUtilPct), str(memUtilPct))
+
 		self.pollRate = \
 			configUtil.getInteger( \
 				section = ConfigConst.CONSTRAINED_DEVICE, key = ConfigConst.POLL_CYCLES_KEY, defaultVal = ConfigConst.DEFAULT_POLL_CYCLES)
@@ -62,13 +66,12 @@ class SystemPerformanceManager(object):
 		
 		self.cpuUtilTask = SystemCpuUtilTask()
 		self.memUtilTask = SystemMemUtilTask()
-
+	
 	def handleTelemetry(self):
 		cpuUtilPct = self.cpuUtilTask.getTelemetryValue()
 		memUtilPct = self.memUtilTask.getTelemetryValue()
 		
-		logging.debug('CPU utilization is %s percent, and memory utilization is %s percent.', str(cpuUtilPct), str(memUtilPct))
-
+		
 		
 	def setDataMessageListener(self, listener: IDataMessageListener) -> bool:
 		pass

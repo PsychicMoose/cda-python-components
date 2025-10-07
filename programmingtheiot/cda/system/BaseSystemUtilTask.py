@@ -11,8 +11,9 @@
 # 
 
 import programmingtheiot.common.ConfigConst as ConfigConst
+import logging
 
-logging.basicConfig(level=logging.INFO)
+
 class BaseSystemUtilTask():
 	"""
 	Shell implementation representation of class for student implementation.
