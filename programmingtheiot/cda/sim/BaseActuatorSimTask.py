@@ -17,6 +17,8 @@ import programmingtheiot.common.ConfigConst as ConfigConst
 
 from programmingtheiot.data.ActuatorData import ActuatorData
 
+logging.basicConfig(level=logging.DEBUG)
+
 class BaseActuatorSimTask():
 	"""
 		Abstract base class for Actuator Simulator Tasks.

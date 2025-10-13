@@ -64,12 +64,18 @@ class SystemPerformanceManager(object):
 		
 		self.cpuUtilTask = SystemCpuUtilTask()
 		self.memUtilTask = SystemMemUtilTask()
+		self.cpuUtilPct = self.cpuUtilTask.getTelemetryValue()
+		self.memUtilPct = self.memUtilTask.getTelemetryValue()
+
 
 	def handleTelemetry(self):
+		# Get fresh readings each time this method is called
 		self.cpuUtilPct = self.cpuUtilTask.getTelemetryValue()
 		self.memUtilPct = self.memUtilTask.getTelemetryValue()
 		
-		logging.debug('CPU utilization is %s percent, and memory utilization is %s percent.', str(cpuUtilPct), str(memUtilPct))
+		# Use self. to access instance variables
+		logging.debug('CPU utilization is %s percent, and memory utilization is %s percent.', 
+					str(self.cpuUtilPct), str(self.memUtilPct))
 		
 		sysPerfData = SystemPerformanceData()
 		sysPerfData.setLocationID(self.locationID)
