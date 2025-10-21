@@ -24,8 +24,7 @@ from programmingtheiot.cda.system.SystemPerformanceManager import SystemPerforma
 
 from programmingtheiot.cda.app.DeviceDataManager import DeviceDataManager
 
-
-logging.basicConfig(format = '%(asctime)s:%(name)s:%(levelname)s:%(message)s', level = logging.DEBUG)
+logging.basicConfig(format='%(asctime)s:%(name)s:%(levelname)s:%(message)s', level=logging.DEBUG, force=True)
 
 class ConstrainedDeviceApp():
 	"""

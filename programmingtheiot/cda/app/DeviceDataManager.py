@@ -34,7 +34,7 @@ from programmingtheiot.data.SensorData import SensorData
 from programmingtheiot.data.SystemPerformanceData import SystemPerformanceData
 
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(format='%(asctime)s:%(name)s:%(levelname)s:%(message)s', level=logging.DEBUG, force=True)
 
 class DeviceDataManager(IDataMessageListener):
 

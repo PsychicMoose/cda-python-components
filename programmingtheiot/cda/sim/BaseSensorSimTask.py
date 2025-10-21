@@ -41,6 +41,9 @@ class BaseSensorSimTask():
 
 	DEFAULT_MIN_VAL = ConfigConst.DEFAULT_VAL
 	DEFAULT_MAX_VAL = 100.0
+
+	logging.basicConfig(level=logging.INFO)
+
 	
 	def __init__(self, name: str = ConfigConst.NOT_SET, typeID: int = ConfigConst.DEFAULT_SENSOR_TYPE, dataSet: SensorDataSet = None, minVal: float = DEFAULT_MIN_VAL, maxVal: float = DEFAULT_MAX_VAL):
 		self.dataSet = dataSet
