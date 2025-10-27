@@ -33,5 +33,5 @@ class BaseSystemUtilTask():
 
 	
 	def getTelemetryValue(self) -> float:
-		pass
+		return self.telemetryValue
 	

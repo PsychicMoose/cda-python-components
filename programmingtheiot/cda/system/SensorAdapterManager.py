@@ -172,7 +172,7 @@ class SensorAdapterManager(object):
 			self.pressureAdapter = PressureSensorSimTask(dataSet = pressureData)
 			self.tempAdapter     = TemperatureSensorSimTask(dataSet = tempData)
 		else:
-			# Emulator path (Sense HAT emulator via pisense / sense-emu)
+			# Emulator path (Sense gn emulator via pisense / sense-emu)
 			try:
 				heModule = import_module('programmingtheiot.cda.emulated.HumiditySensorEmulatorTask', 'HumiditySensorEmulatorTask')
 				peModule = import_module('programmingtheiot.cda.emulated.PressureSensorEmulatorTask', 'PressureSensorEmulatorTask')

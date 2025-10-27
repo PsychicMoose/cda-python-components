@@ -33,6 +33,13 @@ class SensorData(BaseIotData):
 
 		self.value = ConfigConst.DEFAULT_VAL
 
+	def __str__(self):
+		"""
+		Returns a string representation of this instance, including the sensor value.
+		"""
+		baseStr = super().__str__()
+		return f"{baseStr},value={self.value}"
+
 	def getValue(self) -> float:
 		return self.value
 		
@@ -43,3 +50,5 @@ class SensorData(BaseIotData):
 	def _handleUpdateData(self, data):
 		if data and isinstance(data, SensorData):
 			self.value = data.getValue()
+
+			

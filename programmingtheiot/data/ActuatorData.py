@@ -37,6 +37,13 @@ class ActuatorData(BaseIotData):
 		self.stateData = ""
 		self.isResponse = False
 
+	def __str__(self):
+		"""
+		Returns a string representation of this instance, including actuator-specific fields.
+		"""
+		baseStr = super().__str__()
+		return f"{baseStr},command={self.command},value={self.value},stateData={self.stateData},isResponse={self.isResponse}"
+
 	def getCommand(self) -> int:
 		return self.command
 
@@ -72,3 +79,4 @@ class ActuatorData(BaseIotData):
 			self.stateData = data.getStateData()
 			self.value = data.getValue()
 			self.isResponse = data.isResponseFlagEnabled()
+	
