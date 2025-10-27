@@ -244,6 +244,9 @@ class BaseIotData(object):
 		
 		@return The string representing this instance, returned in CSV 'key=value' format.
 		"""
+		baseStr = super().__str__()
+
+
 		return '{}={},{}={},{}={},{}={},{}={},{}={},{}={},{}={},{}={}'.format(
 			ConfigConst.NAME_PROP, self.name,
 			ConfigConst.TYPE_ID_PROP, self.typeID,

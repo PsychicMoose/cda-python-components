@@ -45,6 +45,7 @@ triggerHvacTempCeiling   = 20.0
 
 ENABLE_SYSTEM_PERF_KEY = 'enableSystemPerformance'
 ENABLE_SENSING_KEY = 'enableSensing'
+CURR_VALUE_PROP = "curValue"
 
 HANDLE_TEMP_CHANGE_ON_DEVICE_KEY = 'handleTempChangeOnDevice'
 TRIGGER_HVAC_TEMP_FLOOR_KEY = 'triggerHvacTempFloor'

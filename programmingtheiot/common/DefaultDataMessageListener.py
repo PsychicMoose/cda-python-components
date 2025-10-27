@@ -95,7 +95,7 @@ class DefaultDataMessageListener(IDataMessageListener):
 		@param msg The message received. It is expected to be in JSON format.
 		@return bool True on success; False otherwise.
 		"""
-		logging.info('Topic: %s  Message: %s', resourceEnum.value(), msg)
+		logging.info('Topic: %s  Message: %s', resourceEnum, msg)
 		return True
 
 	def handleSensorMessage(self, data: SensorData) -> bool:
