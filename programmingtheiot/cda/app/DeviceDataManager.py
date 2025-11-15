@@ -14,6 +14,8 @@ import logging
 
 from programmingtheiot.cda.connection.CoapClientConnector import CoapClientConnector
 from programmingtheiot.cda.connection.MqttClientConnector import MqttClientConnector
+from programmingtheiot.cda.connection.CoapServerAdapter import CoapServerAdapter
+
 
 from programmingtheiot.cda.system.ActuatorAdapterManager import ActuatorAdapterManager
 from programmingtheiot.cda.system.SensorAdapterManager import SensorAdapterManager
@@ -124,6 +126,16 @@ class DeviceDataManager(IDataMessageListener):
 			logging.info("MQTT client support enabled.")
 			self.mqttClient = MqttClientConnector()
 			self.mqttClient.setDataMessageListener(self)
+		
+		# Enable CoAP server if configured
+		self.enableCoapServer = self.configUtil.getBoolean(
+			section=ConfigConst.CONSTRAINED_DEVICE,
+			key=ConfigConst.ENABLE_COAP_SERVER_KEY
+		)
+		
+		if self.enableCoapServer:
+			logging.info("CoAP server support enabled.")
+			self.coapServer = CoapServerAdapter(dataMsgListener = self)
 		
 	def getLatestActuatorDataResponseFromCache(self, name: str = None) -> ActuatorData:
 		"""
@@ -310,6 +322,10 @@ class DeviceDataManager(IDataMessageListener):
 				callback = None,  # Uses the default callback in MqttClientConnector
 				qos = ConfigConst.DEFAULT_QOS
 			)
+		
+		if self.coapServer:
+			# Start the CoAP server
+			self.coapServer.startServer()
 			
 		logging.info("Started DeviceDataManager.")
 
@@ -333,6 +349,10 @@ class DeviceDataManager(IDataMessageListener):
 			
 			# Disconnect from broker
 			self.mqttClient.disconnectClient()
+		
+		if self.coapServer:
+			# Stop the CoAP server
+			self.coapServer.stopServer()
 
 		logging.info("Stopped DeviceDataManager.")
 		
