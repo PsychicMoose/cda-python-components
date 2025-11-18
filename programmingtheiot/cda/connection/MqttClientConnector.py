@@ -42,34 +42,28 @@ class MqttClientConnector(IPubSubClient):
     # ----- Core Connection Methods -----
 
     def connectClient(self) -> bool:
-        if self.mqttClient is None:
-            self.mqttClient = mqtt.Client(client_id=self.clientId)
-            
-            # Set up callbacks
-            self.mqttClient.on_connect = self.onConnect
-            self.mqttClient.on_disconnect = self.onDisconnect
-            self.mqttClient.on_message = self.onMessage
-            self.mqttClient.on_publish = self.onPublish
-            self.mqttClient.on_subscribe = self.onSubscribe
-            
-            # If encryption is enabled, set up TLS
+        try:
+            # Set up TLS if encryption is enabled
             if self.enableCrypt:
                 import ssl
-                self.mqttClient.tls_set(
-                    ca_certs=self.certFile,
-                    tls_version=ssl.PROTOCOL_TLS_CLIENT
+                # Load cert file path from config
+                certFile = self.config.getProperty(
+                    ConfigConst.MQTT_GATEWAY_SERVICE, 
+                    ConfigConst.CERT_FILE_KEY
                 )
-
-                self.mqttClient.tls_insecure_set(True)
-
-        
-        try:
+                
+                self.mqttClient.tls_set(
+                    ca_certs=certFile,
+                    tls_version=ssl.PROTOCOL_TLS
+                )
+                self.mqttClient.tls_insecure_set(True)  # For self-signed certs
+                logging.info(f"TLS configured with cert: {certFile}")
+            
             logging.info(f"Connecting to MQTT broker at {self.host}:{self.port} (TLS: {self.enableCrypt})")
             self.mqttClient.connect(self.host, self.port, self.keepAlive)
             self.mqttClient.loop_start()
             
-            # Wait for connection to be established (up to 5 seconds)
-            import time
+            # Wait for connection
             timeout = 5
             while not self.mqttClient.is_connected() and timeout > 0:
                 time.sleep(0.1)
@@ -85,7 +79,7 @@ class MqttClientConnector(IPubSubClient):
         except Exception as e:
             logging.error(f"MQTT connection failed: {e}")
             return False
-
+    
     def disconnectClient(self) -> bool:
         try:
             self.mqttClient.loop_stop()

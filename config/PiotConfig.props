@@ -12,14 +12,14 @@
 #
 [Mqtt.GatewayService]
 credFile       = ./cred/PiotMqttLocalCred.props
-certFile       = ./cert/PiotMqttLocalCertFile.pem
+certFile       = ./certs/PiotMqttLocalCertFile.pem
 host           = localhost
 port           = 1883
 securePort     = 8883
 defaultQoS     = 0
 keepAlive      = 60
-enableAuth     = False
-enableCrypt    = False
+enableAuth     = True
+enableCrypt    = True
 
 #
 # CoAP client configuration information
