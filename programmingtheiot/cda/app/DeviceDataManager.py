@@ -316,12 +316,6 @@ class DeviceDataManager(IDataMessageListener):
 			# Connect to MQTT broker
 			self.mqttClient.connectClient()
 			
-			# Subscribe to actuator command topic
-			self.mqttClient.subscribeToTopic(
-				resource = ResourceNameEnum.CDA_ACTUATOR_CMD_RESOURCE,
-				callback = None,  # Uses the default callback in MqttClientConnector
-				qos = ConfigConst.DEFAULT_QOS
-			)
 		
 		if self.coapServer:
 			# Start the CoAP server

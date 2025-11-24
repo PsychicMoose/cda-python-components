@@ -1,4 +1,5 @@
 import logging
+
 import paho.mqtt.client as mqttClient
 import time
 
@@ -7,6 +8,7 @@ from programmingtheiot.common.ConfigUtil import ConfigUtil
 from programmingtheiot.common.IDataMessageListener import IDataMessageListener
 from programmingtheiot.common.ResourceNameEnum import ResourceNameEnum
 from programmingtheiot.cda.connection.IPubSubClient import IPubSubClient
+from programmingtheiot.data.DataUtil import DataUtil
 
 
 class MqttClientConnector(IPubSubClient):
@@ -21,7 +23,14 @@ class MqttClientConnector(IPubSubClient):
         self.qos = self.config.getInteger(ConfigConst.MQTT_GATEWAY_SERVICE, ConfigConst.DEFAULT_QOS_KEY, ConfigConst.DEFAULT_QOS)
         self.enableAuth = self.config.getBoolean(ConfigConst.MQTT_GATEWAY_SERVICE, ConfigConst.ENABLE_AUTH_KEY)
         self.enableCrypt = self.config.getBoolean(ConfigConst.MQTT_GATEWAY_SERVICE, ConfigConst.ENABLE_CRYPT_KEY)
-
+    
+    # Choose port based on encryption setting
+        if self.enableCrypt:
+            self.port = self.config.getInteger(ConfigConst.MQTT_GATEWAY_SERVICE, ConfigConst.SECURE_PORT_KEY, ConfigConst.DEFAULT_MQTT_SECURE_PORT)
+       
+        else:
+            self.port = self.config.getInteger(ConfigConst.MQTT_GATEWAY_SERVICE, ConfigConst.PORT_KEY, ConfigConst.DEFAULT_MQTT_PORT)
+            
         self.clientID = clientID if clientID else "CDAClient"
         self.dataMsgListener: IDataMessageListener = None
 
@@ -94,8 +103,19 @@ class MqttClientConnector(IPubSubClient):
 
     def onConnect(self, client, userdata, flags, rc):
         if rc == 0:
-            logging.info("MQTT connection established (rc=0)")
-            logging.info(f"MQTT client connected to broker: {client}")
+            logging.info("[Callback] Connected to MQTT broker. Result code: 0")
+            
+            # Subscribe to actuator command topic
+            self.mqttClient.subscribe(
+                topic=ResourceNameEnum.CDA_ACTUATOR_CMD_RESOURCE.value, 
+                qos=self.qos
+            )
+            
+            # Add specific callback for actuator commands
+            self.mqttClient.message_callback_add(
+                sub=ResourceNameEnum.CDA_ACTUATOR_CMD_RESOURCE.value,
+                callback=self.onActuatorCommandMessage
+            )
         else:
             logging.warning(f"MQTT connection failed: rc={rc}")
 
@@ -212,3 +232,15 @@ class MqttClientConnector(IPubSubClient):
         self.dataMsgListener = listener
         logging.info("DataMessageListener set.")
         return True
+
+    def onActuatorCommandMessage(self, client, userdata, msg):
+        logging.info('[Callback] Actuator command message received. Topic: %s.', msg.topic)
+        
+        if self.dataMsgListener:
+            try:
+                # assumes all data is encoded using UTF-8 (between GDA and CDA)
+                actuatorData = DataUtil().jsonToActuatorData(msg.payload.decode('utf-8'))
+                
+                self.dataMsgListener.handleActuatorCommandMessage(actuatorData)
+            except:
+                logging.exception("Failed to convert incoming actuation command payload to ActuatorData: ")
