@@ -58,25 +58,27 @@ class CoapServerAdapterTest(unittest.TestCase):
 		self.pollRate = ConfigUtil().getInteger(ConfigConst.CONSTRAINED_DEVICE, ConfigConst.POLL_CYCLES_KEY, ConfigConst.DEFAULT_POLL_CYCLES)
 		
 		self.coapClient = CoapClientConnector()
+		
+		# Create the CoAP server with the data message listener
+		# The server will handle resources internally
 		self.coapServer = CoapServerAdapter(dataMsgListener = self.dataMsgListener)
 		
+		# Create the resource handlers (but don't add them to the server)
+		# These are just for setting up the data message listener callbacks
 		self.tempDataUpdateListener = GetTelemetryResourceHandler()
 		self.sysPerfDataUpdateListener = GetSystemPerformanceResourceHandler()
 		
-		# add these CoAP resource handlers as listeners to the IDataMessageListener impl
+		# Set up the handlers' data message listeners so they can access cached data
+		self.tempDataUpdateListener.setDataMessageListener(self.dataMsgListener)
+		self.sysPerfDataUpdateListener.setDataMessageListener(self.dataMsgListener)
+		
+		# Add these handlers as listeners to the IDataMessageListener impl
+		# This allows them to receive data updates
 		self.dataMsgListener.setTelemetryDataListener(ConfigConst.TEMP_SENSOR_NAME, self.tempDataUpdateListener)
 		self.dataMsgListener.setSystemPerformanceDataListener(self.sysPerfDataUpdateListener)
 		
-		# add these CoAP resource handlers to the CoAP server
-		self.coapServer.addResource( \
-			ResourceNameEnum.CDA_SENSOR_MSG_RESOURCE, \
-			ConfigConst.TEMP_SENSOR_NAME, \
-			self.tempDataUpdateListener)
-		
-		self.coapServer.addResource( \
-			ResourceNameEnum.CDA_SYSTEM_PERF_MSG_RESOURCE, \
-			ConfigConst.SYSTEM_PERF_NAME, \
-			self.sysPerfDataUpdateListener)
+		# Note: We're NOT calling addResource on the server since it handles resources internally
+		# The server's internal resources will use the same dataMsgListener
 		
 		# create a scheduler to update system perf data and temp sensor data at pollCycles
 		self.scheduler = BackgroundScheduler()
@@ -111,6 +113,7 @@ class CoapServerAdapterTest(unittest.TestCase):
 		"""
 		Comment the annotation to test CON GET
 		"""
+		# The server internally handles these paths, so we just need to make the requests
 		self.coapClient.sendGetRequest( \
 			resource = ResourceNameEnum.CDA_SENSOR_MSG_RESOURCE, name = ConfigConst.TEMP_SENSOR_NAME, enableCON = True, timeout = 5)
 		
@@ -124,7 +127,7 @@ class CoapServerAdapterTest(unittest.TestCase):
 		self.coapClient.sendGetRequest( \
 			resource = ResourceNameEnum.CDA_SENSOR_MSG_RESOURCE, name = ConfigConst.TEMP_SENSOR_NAME, enableCON = True, timeout = 5)
 		
-	@unittest.skip("Ignore for now.")
+	#@unittest.skip("Ignore for now.")
 	def testConnectAndGetNon(self):
 		"""
 		Comment the annotation to test NON GET
@@ -132,7 +135,7 @@ class CoapServerAdapterTest(unittest.TestCase):
 		self.coapClient.sendGetRequest( \
 			resource = ResourceNameEnum.CDA_MGMT_STATUS_MSG_RESOURCE, enableCON = False, timeout = 5)
 
-	@unittest.skip("Ignore for now.")
+	#@unittest.skip("Ignore for now.")
 	def testConnectAndDeleteCon(self):
 		"""
 		Comment the annotation to test CON DELETE
@@ -140,7 +143,7 @@ class CoapServerAdapterTest(unittest.TestCase):
 		self.coapClient.sendDeleteRequest( \
 			resource = ResourceNameEnum.CDA_MGMT_STATUS_MSG_RESOURCE, enableCON = True, timeout = 5)
 	
-	@unittest.skip("Ignore for now.")
+	#@unittest.skip("Ignore for now.")
 	def testConnectAndDeleteNon(self):
 		"""
 		Comment the annotation to test NON DELETE
@@ -148,7 +151,7 @@ class CoapServerAdapterTest(unittest.TestCase):
 		self.coapClient.sendDeleteRequest( \
 			resource = ResourceNameEnum.CDA_MGMT_STATUS_MSG_RESOURCE, enableCON = False, timeout = 5)
 
-	@unittest.skip("Ignore for now.")
+	#@unittest.skip("Ignore for now.")
 	def testObserveForTwoMinutes(self):
 		"""
 		Comment the annotation to test Observe
@@ -157,7 +160,7 @@ class CoapServerAdapterTest(unittest.TestCase):
 		sleep(120)
 		self._stopObserver()
 	
-	@unittest.skip("Ignore for now.")
+	#@unittest.skip("Ignore for now.")
 	def testConnectAndPostCon(self):
 		"""
 		Comment the annotation to test CON POST
@@ -165,7 +168,7 @@ class CoapServerAdapterTest(unittest.TestCase):
 		msg = "This is a test."
 		self.coapClient.sendPostRequest(resource = ResourceNameEnum.CDA_MGMT_STATUS_MSG_RESOURCE, payload = msg, enableCON = True, timeout = 5)
 
-	@unittest.skip("Ignore for now.")
+	#@unittest.skip("Ignore for now.")
 	def testConnectAndPostNon(self):
 		"""
 		Comment the annotation to test NON POST
@@ -173,7 +176,7 @@ class CoapServerAdapterTest(unittest.TestCase):
 		msg = "This is a test."
 		self.coapClient.sendPostRequest(resource = ResourceNameEnum.CDA_MGMT_STATUS_MSG_RESOURCE, payload = msg, enableCON = False, timeout = 5)
 
-	@unittest.skip("Ignore for now.")
+	#@unittest.skip("Ignore for now.")
 	def testConnectAndPutCon(self):
 		"""
 		Comment the annotation to test CON PUT
@@ -181,7 +184,7 @@ class CoapServerAdapterTest(unittest.TestCase):
 		msg = "This is a test."
 		self.coapClient.sendPutRequest(resource = ResourceNameEnum.CDA_MGMT_STATUS_MSG_RESOURCE, payload = msg, enableCON = True, timeout = 5)
 
-	@unittest.skip("Ignore for now.")
+	#@unittest.skip("Ignore for now.")
 	def testConnectAndPutNon(self):
 		"""
 		Comment the annotation to test NON PUT
@@ -197,8 +200,8 @@ class CoapServerAdapterTest(unittest.TestCase):
 		sysPerfData = SystemPerformanceData()
 		sysPerfData.setName("SystemPerfMsg")
 		sysPerfData.setCpuUtilization(sysPerfVal)
-		sysPerfData.setDiskUtilization(sysPerfVal)
-		sysPerfData.setMemoryUtilization(sysPerfData)
+		#sysPerfData.setDiskUtilization(sysPerfVal)
+		sysPerfData.setMemoryUtilization(sysPerfVal)  # Fixed typo - was sysPerfData instead of sysPerfVal
 		
 		# Uncomment the next SLOC to trigger data message listener callback for perf data
 		#self.dataMsgListener.handleSystemPerformanceMessage(sysPerfData)
@@ -219,4 +222,3 @@ class CoapServerAdapterTest(unittest.TestCase):
 
 if __name__ == "__main__":
 	unittest.main()
-	
