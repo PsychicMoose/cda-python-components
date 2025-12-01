@@ -27,39 +27,41 @@ from programmingtheiot.common.IDataMessageListener import IDataMessageListener
 from programmingtheiot.data.DataUtil import DataUtil
 from programmingtheiot.data.ActuatorData import ActuatorData
 
-class SensorResource(resource.Resource):
-    """Resource for handling sensor data GET requests"""
+class SensorResource(resource.ObservableResource):
+    """Observable resource for handling sensor data GET requests"""
     
     def __init__(self, dataMsgListener=None):
         super().__init__()
         self.dataMsgListener = dataMsgListener
         self.dataUtil = DataUtil()
+        # How often to notify observers (in seconds)
+        self.notify_task = None
         
     async def render_get(self, request):
         logging.info("GET request received for sensor resource")
-        
+        payload = self._get_sensor_payload()
+        return aiocoap.Message(payload=payload.encode('utf-8'))
+    
+    def _get_sensor_payload(self):
         if self.dataMsgListener:
-            # Try to get any sensor data from cache
             sensor_data = None
-            # Try common sensor names
             for name in ["Temperature", "Humidity", "Pressure", None]:
                 sensor_data = self.dataMsgListener.getLatestSensorDataFromCache(name)
                 if sensor_data:
                     break
                     
             if sensor_data:
-                payload = self.dataUtil.sensorDataToJson(sensor_data)
-                logging.info(f"Returning sensor data: {payload[:100]}...")
-            else:
-                payload = '{"status": "No sensor data available yet"}'
-                logging.info("No sensor data available")
-        else:
-            payload = '{"error": "No data listener configured"}'
-            
-        return aiocoap.Message(payload=payload.encode('utf-8'))
+                return self.dataUtil.sensorDataToJson(sensor_data)
+        
+        return '{"status": "No sensor data available yet"}'
+    
+    def update_observation(self):
+        """Call this to notify observers of changes"""
+        self.updated_state()
 
-class SystemPerformanceResource(resource.Resource):
-    """Resource for handling system performance GET requests"""
+
+class SystemPerformanceResource(resource.ObservableResource):
+    """Observable resource for handling system performance GET requests"""
     
     def __init__(self, dataMsgListener=None):
         super().__init__()
@@ -68,21 +70,20 @@ class SystemPerformanceResource(resource.Resource):
         
     async def render_get(self, request):
         logging.info("GET request received for system performance resource")
-        
-        if self.dataMsgListener:
-            # Get system performance data from cache
-            sys_perf_data = self.dataMsgListener.getLatestSystemPerformanceDataFromCache("SystemPerformance")
-            
-            if sys_perf_data:
-                payload = self.dataUtil.systemPerformanceDataToJson(sys_perf_data)
-                logging.info(f"Returning system performance data: {payload[:100]}...")
-            else:
-                payload = '{"status": "No system performance data available yet"}'
-                logging.info("No system performance data available")
-        else:
-            payload = '{"error": "No data listener configured"}'
-            
+        payload = self._get_sysperf_payload()
         return aiocoap.Message(payload=payload.encode('utf-8'))
+    
+    def _get_sysperf_payload(self):
+        if self.dataMsgListener:
+            sys_perf_data = self.dataMsgListener.getLatestSystemPerformanceDataFromCache("SystemPerformance")
+            if sys_perf_data:
+                return self.dataUtil.systemPerformanceDataToJson(sys_perf_data)
+        
+        return '{"status": "No system performance data available yet"}'
+    
+    def update_observation(self):
+        """Call this to notify observers of changes"""
+        self.updated_state()
 
 class ActuatorCommandResource(resource.Resource):
     """Resource for handling actuator commands via PUT/POST"""
@@ -138,8 +139,12 @@ class ActuatorCommandResource(resource.Resource):
     async def render_post(self, request):
         # POST behaves the same as PUT for actuator commands
         return await self.render_put(request)
+    
+    async def render_delete(self, request):
+        logging.info("DELETE request received for actuator resource")
+        return aiocoap.Message(payload=b'{"status": "Actuator data cleared"}')
 
-# Add this new class after your other resource classes
+
 class DiscoveryResource(resource.Resource):
     """Resource for handling .well-known/core discovery requests"""
     
