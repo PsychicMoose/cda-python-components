@@ -141,7 +141,7 @@ def main():
 		else:
 			# run CDA for ~65 seconds then exit
 			if (cda.isAppStarted()):
-				sleep(65)
+				sleep(200)
 				cda.stopApp(0)
 			
 	except KeyboardInterrupt:
