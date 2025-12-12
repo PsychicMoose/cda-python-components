@@ -1,0 +1,57 @@
+#####
+# Configuration file for the Constrained Device App (CDA)
+#
+
+[Mqtt.GatewayService]
+host = 10.0.0.192
+port           = 1883
+securePort     = 8883
+defaultQoS     = 1
+keepAlive      = 60
+enableAuth     = False
+enableCrypt    = True
+certFile       = ./certs/ca.crt
+
+[Coap.GatewayService]
+host           = localhost
+port           = 5683
+securePort     = 5684
+enableAuth     = False
+enableCrypt    = False
+
+[ConstrainedDevice]
+deviceLocationID = constraineddevice001
+enableEmulator   = False
+enableSenseHAT   = True
+enableMqttClient = True
+enableCoapServer = False
+enableCoapClient = False
+enableSystemPerformance = True
+enableSensing    = True
+enableLogging    = True
+pollCycleSecs    = 5
+
+# Panopticon Desk specific settings
+enableCamera     = True
+enableMicrophone = True
+enableLedMatrix  = True
+
+# LED Matrix settings
+ledMatrixHost    = 10.0.0.172
+ledMatrixPort    = 80
+
+testGdaDataPath  = /tmp/gda-data
+testCdaDataPath  = /tmp/cda-data
+runForever = True
+
+# Sensor simulation limits
+humiditySimFloor   =   35.0
+humiditySimCeiling =   45.0
+pressureSimFloor   =  990.0
+pressureSimCeiling = 1010.0
+tempSimFloor       =   15.0
+tempSimCeiling     =   25.0
+
+handleTempChangeOnDevice = True
+triggerHvacTempFloor     = 18.0
+triggerHvacTempCeiling   = 22.0
